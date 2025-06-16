@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>楓之谷野王復活倒數計時器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Press Start 2P', monospace;
+      background-color: #0b0b0b;
+      color: #00ff88;
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      color: #00ff88;
+      font-size: 16px;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+    .section {
+      background: #111;
+      border: 1px solid #00ff88;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 15px auto;
+      max-width: 480px;
+      box-shadow: 0 0 8px #00ff88;
+    }
+    input, select, button {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 6px 10px;
+      margin: 5px;
+      border-radius: 6px;
+      border: 1px solid #00ff88;
+      background-color: #111;
+      color: #00ff88;
+      max-width: 95%;
+    }
+    button {
+      cursor: pointer;
+      background-color: #00ff88;
+      color: #111;
+      font-weight: bold;
+    }
+    .record {
+      border: 1px solid #00ff88;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px auto;
+      max-width: 460px;
+      background: #161616;
+    }
+    .timer {
+      font-size: 13px;
+      margin-top: 5px;
+      color: #f6f679;
+    }
+    .shake {
+      animation: shake 0.4s;
+      border-color: red;
+      color: red;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    ul {
+      text-align: left;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 楓之谷野王復活倒數計時器</h1>
+
+  <div class="section">
+    <input type="text" id="channel" placeholder="📍 請輸入頻道（如：CH1）">
+    <select id="boss">
+<option value="測試王|0.01|0.01">🧪 測試王（1秒）</option>
+<option value="黑輪王|780|1020">黑輪王（780分～1020分）</option>
+<option value="巴洛古|405|540">巴洛古（405分～540分）</option>
+<option value="九尾妖狐|210|570">九尾妖狐（210分～570分）</option>
+<option value="厄運死神|45|105">厄運死神（45分～105分）</option>
+<option value="殭屍蘑菇王|195|225">殭屍蘑菇王（195分～225分）</option>
+<option value="沼澤巨鱷|90|105">沼澤巨鱷（90分～105分）</option>
+<option value="雪山魔女|158|180">雪山魔女（158分～180分）</option>
+<option value="書生幽靈|150|300">書生幽靈（150分～300分）</option>
+<option value="蘑菇王|210|240">蘑菇王（210分～240分）</option>
+<option value="咕咕鐘|68|90">咕咕鐘（68分～90分）</option>
+<option value="冥界幽靈|45|60">冥界幽靈（45分～60分）</option>
+<option value="巨居蟹|45|60">巨居蟹（45分～60分）</option>
+<option value="殭屍猴王|38|45">殭屍猴王（38分～45分）</option>
+<option value="樹妖王|23|30">樹妖王（23分～30分）</option>
+<option value="紅寶王|23|30">紅寶王（23分～30分）</option>
+<option value="雪毛怪人|45|68">雪毛怪人（45分～68分）</option>
+</select>
+    <button onclick="registerKill()">✅ 登記擊殺</button>
+  </div>
+
+  <div class="section">
+    <strong>🎧 聲音提醒設定</strong><br>
+    🔊 狀態：<span id="soundStatus">開</span>
+    <button onclick="toggleSound()">切換</button><br><br>
+    🎵 音效：
+    <select id="soundSelect">
+      <option value="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg">彈跳音</option>
+      <option value="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">短嗶音</option>
+    </select><br><br>
+    🔉 音量：<input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1"><br><br>
+    🔁 播放次數：<input type="number" id="repeatCount" min="1" max="5" value="2">
+  </div>
+
+  <div id="list"></div>
+
+  <div class="section">
+    <button onclick="toggleHistory()">📜 查看歷史紀錄</button>
+    <button onclick="clearAllRecords()">🧹 清空所有紀錄</button>
+    <button onclick="exportHistory()">📁 匯出歷史紀錄</button>
+    <div id="historyContainer" style="display:none;">
+      <ul id="history" style="font-size:10px;"></ul>
+    </div>
+  </div>
+
+  <audio id="alertSound"></audio>
+  <script>
+    let soundEnabled = true;
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById("soundStatus").textContent = soundEnabled ? "開" : "關";
+    }
+    function playSoundMultiple(times) {
+      const sound = document.getElementById('alertSound');
+      sound.src = document.getElementById('soundSelect').value;
+      sound.volume = parseFloat(document.getElementById('volumeSlider').value);
+      let count = 0;
+      function playOnce() {
+        if (count < times) {
+          sound.currentTime = 0;
+          sound.play();
+          count++;
+          setTimeout(playOnce, 1500);
+        }
+      }
+      playOnce();
+    }
+    function registerKill() {
+      const channel = document.getElementById('channel').value.trim();
+      const [bossName, min, max] = document.getElementById('boss').value.split('|');
+      const list = document.getElementById('list');
+      const existing = Array.from(list.children).find(div => div.textContent.includes(bossName) && div.textContent.includes(channel));
+      if (existing) {
+        existing.classList.add('shake');
+        setTimeout(() => existing.classList.remove('shake'), 600);
+        return;
+      }
+      const now = new Date();
+      const minTime = new Date(now.getTime() + min * 60000);
+      const maxTime = new Date(now.getTime() + max * 60000);
+      const id = Date.now();
+      const div = document.createElement('div');
+      div.className = 'record';
+      div.id = `record-${id}`;
+      div.innerHTML = `<strong>${bossName}</strong> - ${channel}<br/>
+        ⏰ 最早：${minTime.toLocaleTimeString()}<br/>
+        ⏰ 最晚：${maxTime.toLocaleTimeString()}<br/>
+        <div class="timer" id="timer-${id}">⏳ 倒數中…</div>`;
+      list.appendChild(div);
+      const log = document.createElement('li');
+      log.textContent = `${now.toLocaleString()} 登記 ${bossName}（${channel}）`;
+      document.getElementById('history').prepend(log);
+      const timer = setInterval(() => {
+        const now = new Date();
+        const remaining = minTime - now;
+        const timerEl = document.getElementById(`timer-${id}`);
+        if (remaining <= 0 && timerEl) {
+          timerEl.innerHTML = `<span style="color:yellow;">🔔 最早重生已到！</span>`;
+          if (soundEnabled) playSoundMultiple(parseInt(document.getElementById('repeatCount').value));
+          clearInterval(timer);
+        } else if (remaining > 0) {
+          const mins = Math.floor(remaining / 60000);
+          const secs = Math.floor((remaining % 60000) / 1000);
+          timerEl.textContent = `⏳ 距離最早重生：${mins}分${secs}秒`;
+        }
+      }, 1000);
+    }
+    function toggleHistory() {
+      const container = document.getElementById('historyContainer');
+      container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    }
+    function clearAllRecords() {
+      document.getElementById('list').innerHTML = '';
+      document.getElementById('history').innerHTML = '';
+    }
+    function exportHistory() {
+      const historyText = document.getElementById('history').innerText;
+      const blob = new Blob([historyText], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'boss_history.txt';
+      link.click();
+    }
+  </script>
+</body>
+</html>
