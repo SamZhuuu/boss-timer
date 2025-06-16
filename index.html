@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>楓之谷野王復活倒數計時器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: "Press Start 2P", monospace;
+      background-color: #111;
+      color: #0f0;
+      text-align: center;
+      padding: 10px;
+    }
+    h1 {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    select, input, button {
+      font-family: inherit;
+      font-size: 12px;
+      margin: 4px;
+      padding: 5px;
+      width: 90%;
+      max-width: 300px;
+    }
+    .record {
+      border: 1px solid #0f0;
+      padding: 10px;
+      margin: 10px auto;
+      max-width: 95%;
+      transition: all 0.3s ease;
+    }
+    .shake {
+      animation: shake 0.4s;
+      border-color: red;
+      color: red;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .timer {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .toggle {
+      margin-top: 10px;
+      cursor: pointer;
+      color: #ff0;
+    }
+    #historyContainer {
+      display: none;
+      margin-top: 10px;
+    }
+    @media (max-width: 480px) {
+      body {
+        font-size: 10px;
+      }
+      .timer {
+        font-size: 12px;
+      }
+      button, input, select {
+        font-size: 10px;
+        padding: 6px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- 其餘內容保持不變 -->
